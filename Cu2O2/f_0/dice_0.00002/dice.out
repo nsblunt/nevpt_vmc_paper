@@ -1,0 +1,92 @@
+
+
+**************************************************************
+Dice  Copyright (C) 2017  Sandeep Sharma
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+See the GNU General Public License for more details.
+
+
+Author:       Sandeep Sharma
+Contributors: James E Smith, Adam A Holmes, Bastien Mussard
+For detailed documentation on Dice please visit
+https://sanshar.github.io/Dice/
+Please visit our group page for up to date information on other projects
+http://www.colorado.edu/lab/sharmagroup/
+**************************************************************
+
+
+**************************************************************
+Input file  :
+**************************************************************
+#system
+nocc 28
+0 2 4 6 8 10 12 14 16 18 20 22 24 26 1 3 5 7 9 11 13 15 17 19 21 23 25 27 
+orbitals ./FCIDUMP
+nroots 1
+
+#variational
+schedule
+0 0.00002
+end
+davidsonTol 5e-05
+dE 1e-08
+maxiter 15
+printalldeterminants
+
+#pt
+nPTiter 0
+epsilon2 1e-07
+#epsilon2Large 2e-5
+targetError 1e-5
+sampleN 200
+
+
+#misc
+noio
+prefix /rc_scratch/anma2640/
+DoRDM
+DoSpinRDM
+
+
+
+**************************************************************
+VARIATIONAL STEP  
+**************************************************************
+Iter Root       Eps1   #Var. Det.               Energy   #Davidson     Time(s)
+   0    0    2.00e-05       11413     -3412.0028385129         12        0.56
+   1    0    2.00e-05     6256051     -3412.1696483954         34      211.71
+   2    0    2.00e-05    20035782     -3412.2022719974         36      762.87
+   3    0    2.00e-05    25466929     -3412.2043081476         27     1128.74
+   4    0    2.00e-05    26160810     -3412.2044108105         16     1291.63
+   5    0    2.00e-05    26228095     -3412.2044193546         11     1396.29
+   6    0    2.00e-05    26239786     -3412.2044206340          5     1451.94
+   7    0    2.00e-05    26241331     -3412.2044207784          4     1499.52
+   8    0    2.00e-05    26242013     -3412.2044208471          4     1547.31
+   9    0    2.00e-05    26242563     -3412.2044209126          3     1587.05
+  10    0    2.00e-05    26242874     -3412.2044209467          3     1626.87
+  11    0    2.00e-05    26243051     -3412.2044209614          3     1667.18
+  12    0    2.00e-05    26243229     -3412.2044209770          3     1707.64
+  13    0    2.00e-05    26243345     -3412.2044209849          2     1740.42
+
+Performing final tight davidson with tol: 5e-05
+
+Exiting variational iterations
+Calculating 2RDM
+-350.623001095548  158.530723595769
+E from 2RDM: -3412.20442098492
+VARIATIONAL CALCULATION RESULT
+------------------------------
+Root             Energy     Time(s)
+   0    -3412.2044209849     1896.30
+
+
+Printing all determinants
+ Det     weight  Determinant string
+State :0
+We cannot perform PT RDM with stochastic PT. Disabling RDM.
+
+**************************************************************
+PERTURBATION THEORY STEP  
+**************************************************************

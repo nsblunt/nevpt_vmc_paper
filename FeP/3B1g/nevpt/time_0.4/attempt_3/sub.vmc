@@ -1,0 +1,13 @@
+#!/bin/bash
+# Name of the job
+#SBATCH -J hci
+#SBATCH -A BLUNT-SL3-CPU
+#SBATCH -p skylake-himem
+#SBATCH --nodes=10
+#SBATCH --ntasks=320
+#SBATCH --time=12:00:00
+
+export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/home/nsb37/local/boost_1_66_0_mpi_vmc/lib/
+export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/home/nsb37/local/hdf5-1.10.1/lib/
+
+mpirun /home/nsb37/VMC/bin/VMC vmc.json > nevpt.out

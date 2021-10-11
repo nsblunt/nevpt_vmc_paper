@@ -1,0 +1,71 @@
+{
+    "print": {
+        "SCNorms": "true",
+        "readSCNorms": "false",
+        "continueSCNorms": "true",
+        "sampleNEVPT2Energy": "false"
+    },
+    "wavefunction": {
+        "name": "scpt",
+        "numAct": "29",
+        "numCore": "44",
+        "overlapCutoff": "1.0e-8",
+        "determinants": "dets"
+    },
+    "sampling": {
+        "stochasticIterNorms": "500",
+        "nIterFindInitDets": "100",
+        "epsilon": "1.0e-8",
+        "seed": "1279241",
+        "efficientNEVPT_2": "true",
+        "determCCVV": "true",
+        "SCNormsBurnIn": "50"
+    }
+}
+
+Reading integrals
+Finished reading integrals
+Starting heat bath integral construction
+Finished heat bath integral construction
+Reading active space determinants
+Finished reading determinants, hash table bucket count: 33554432
+Integrals and wave function preparation finished in 294.808 s
+
+Deterministic CCVV energy:  -1.50979049789
+
+About to sample the norms of the strongly contracted states...
+
+About to allocate arrays for sampling...
+Total number of strongly contracted states to sample: 284636
+Allocation of sampling arrays now finished.
+
+About to read norm data...
+Reading complete.
+
+About to call first instance of HamAndSCNorms...
+First instance of HamAndSCNorms complete.
+iter: 0  t: 368.348
+iter: 1  t: 411.316
+iter: 50  t: 2312.61
+iter: 100  t: 4165.72
+iter: 150  t: 6005.98
+iter: 200  t: 7852.61
+iter: 250  t: 9700.96
+iter: 300  t: 11548
+iter: 350  t: 13378.8
+iter: 400  t: 15210.1
+iter: 450  t: 23485.7
+iter: 500  t: 31899.4
+Calculating AAVV norms...
+AAVV norms calculated. Time taken: 438.15
+Calculating CAAV norms...
+CAAV norms calculated. Time taken: 151.198
+Calculating CCAA norms...
+CCAA norms calculated. Time taken: 116.342
+
+Calculation of strongly contracted norms complete.
+Total time for norms calculation:  32276.8
+
+About to print norm data...
+Printing complete.
+

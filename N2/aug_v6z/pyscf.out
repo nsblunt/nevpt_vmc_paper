@@ -1,0 +1,249 @@
+#INFO: **** input file is /state/partition1/nsb37/159773/prepVMC.py ****
+import numpy as np
+import math
+from pyscf import gto, scf, ao2mo, mcscf, tools
+from pyscf.shciscf import shci
+import os
+
+# make your molecule here
+r = 2.5 * 0.529177
+atomstring = "N 0 0 0; N 0 0 %g"%(r)
+mol = gto.M(
+    atom = atomstring,
+    basis = {'N': gto.basis.parse('''
+N    S
+      4.323000E+05           5.590000E-06          -1.230000E-06           0.000000E+00           0.000000E+00           0.000000E+00           0.000000E+00           0.000000E+00
+      6.470000E+04           4.351000E-05          -9.580000E-06           0.000000E+00           0.000000E+00           0.000000E+00           0.000000E+00           0.000000E+00
+      1.472000E+04           2.289300E-04          -5.051000E-05           0.000000E+00           0.000000E+00           0.000000E+00           0.000000E+00           0.000000E+00
+      4.170000E+03           9.650200E-04          -2.126400E-04           0.000000E+00           0.000000E+00           0.000000E+00           0.000000E+00           0.000000E+00
+      1.361000E+03           3.502190E-03          -7.753400E-04           0.000000E+00           0.000000E+00           0.000000E+00           0.000000E+00           0.000000E+00
+      4.912000E+02           1.129212E-02          -2.506240E-03           0.000000E+00           0.000000E+00           0.000000E+00           0.000000E+00           0.000000E+00
+      1.916000E+02           3.261283E-02          -7.365290E-03           0.000000E+00           0.000000E+00           0.000000E+00           0.000000E+00           0.000000E+00
+      7.941000E+01           8.329727E-02          -1.930167E-02           0.000000E+00           0.000000E+00           0.000000E+00           0.000000E+00           0.000000E+00
+      3.453000E+01           1.799857E-01          -4.471738E-02           0.000000E+00           0.000000E+00           0.000000E+00           0.000000E+00           0.000000E+00
+      1.558000E+01           3.050035E-01          -8.606647E-02           0.000000E+00           0.000000E+00           0.000000E+00           0.000000E+00           0.000000E+00
+      7.232000E+00           3.411593E-01          -1.332963E-01           0.000000E+00           0.000000E+00           0.000000E+00           0.000000E+00           0.000000E+00
+      3.382000E+00           1.774827E-01          -1.059655E-01           1.000000E+00           0.000000E+00           0.000000E+00           0.000000E+00           0.000000E+00
+      1.369000E+00           1.988409E-02           1.346673E-01           0.000000E+00           1.000000E+00           0.000000E+00           0.000000E+00           0.000000E+00
+      6.248000E-01          -1.246630E-03           4.339401E-01           0.000000E+00           0.000000E+00           1.000000E+00           0.000000E+00           0.000000E+00
+      2.747000E-01           1.040110E-03           4.529490E-01           0.000000E+00           0.000000E+00           0.000000E+00           1.000000E+00           0.000000E+00
+      1.192000E-01          -1.265900E-04           1.340216E-01           0.000000E+00           0.000000E+00           0.000000E+00           0.000000E+00           1.000000E+00
+N    S
+      0.04714                1.0000
+N    P
+      4.159000E+02           1.484100E-04           0.000000E+00           0.000000E+00           0.000000E+00           0.000000E+00           0.000000E+00
+      9.861000E+01           1.276340E-03           0.000000E+00           0.000000E+00           0.000000E+00           0.000000E+00           0.000000E+00
+      3.192000E+01           6.702420E-03           0.000000E+00           0.000000E+00           0.000000E+00           0.000000E+00           0.000000E+00
+      1.200000E+01           2.526170E-02           0.000000E+00           0.000000E+00           0.000000E+00           0.000000E+00           0.000000E+00
+      4.919000E+00           7.518943E-02           0.000000E+00           0.000000E+00           0.000000E+00           0.000000E+00           0.000000E+00
+      2.148000E+00           1.740151E-01           1.000000E+00           0.000000E+00           0.000000E+00           0.000000E+00           0.000000E+00
+      9.696000E-01           2.927921E-01           0.000000E+00           1.000000E+00           0.000000E+00           0.000000E+00           0.000000E+00
+      4.399000E-01           3.482648E-01           0.000000E+00           0.000000E+00           1.000000E+00           0.000000E+00           0.000000E+00
+      1.978000E-01           2.559365E-01           0.000000E+00           0.000000E+00           0.000000E+00           1.000000E+00           0.000000E+00
+      8.603000E-02           6.947929E-02           0.000000E+00           0.000000E+00           0.000000E+00           0.000000E+00           1.000000E+00
+N    P
+      0.03150                1.0000
+N    D
+      6.717000E+00           1.000000E+00           0.000000E+00           0.000000E+00           0.000000E+00           0.000000E+00
+      2.896000E+00           0.000000E+00           1.000000E+00           0.000000E+00           0.000000E+00           0.000000E+00
+      1.249000E+00           0.000000E+00           0.000000E+00           1.000000E+00           0.000000E+00           0.000000E+00
+      5.380000E-01           0.000000E+00           0.000000E+00           0.000000E+00           1.000000E+00           0.000000E+00
+      2.320000E-01           0.000000E+00           0.000000E+00           0.000000E+00           0.000000E+00           1.000000E+00
+N    D
+      0.0874                 1.0000
+N    F
+      3.829000E+00           1.000000E+00           0.000000E+00           0.000000E+00           0.000000E+00
+      1.795000E+00           0.000000E+00           1.000000E+00           0.000000E+00           0.000000E+00
+      8.410000E-01           0.000000E+00           0.000000E+00           1.000000E+00           0.000000E+00
+      3.940000E-01           0.000000E+00           0.000000E+00           0.000000E+00           1.000000E+00
+N    F
+      0.1510                 1.0000
+N    G
+      3.856000E+00           1.000000E+00           0.000000E+00           0.000000E+00
+      1.702000E+00           0.000000E+00           1.000000E+00           0.000000E+00
+      7.510000E-01           0.000000E+00           0.000000E+00           1.000000E+00
+N    G
+      0.3260                 1.0000
+N    H
+      2.875000E+00           1.000000E+00           0.000000E+00
+      1.170000E+00           0.000000E+00           1.000000E+00
+N    H
+      0.5870                 1.0000
+N    I
+      2.099000E+00           1.0000000
+N    I
+      1.0410                 1.0000
+'''),
+},
+    verbose=4,
+    symmetry=0,
+    spin = 0)
+
+mf = scf.RHF(mol)
+mf.chkfile = 'N2_HF.chk'
+mf.kernel()
+
+norbAct = 8
+nelecAct = 10
+norbFrozen = 0
+
+mc = shci.SHCISCF(mf, norbAct, nelecAct)
+mc.chkfile = 'N2_SHCISCF.chk'
+mc.fcisolver.sweep_iter = [0]
+mc.fcisolver.sweep_epsilon = [0]
+mc.fcisolver.nPTiter = 0
+mc.max_cycle_macro = 30
+mc.fcisolver.nPTiter = 0  # Turns off PT calculation, i.e. no PTRDM.
+mc.kernel()
+
+fileh = open("moEne.txt", 'w')
+for i in range(mol.nao - norbFrozen):
+  fileh.write('%.12e\n'%(mc.mo_energy[i + norbFrozen]))
+fileh.close()
+
+tools.fcidump.from_mc(mc, 'FCIDUMP.h5', nFrozen = norbFrozen)
+
+# active space integrals for dice calculation
+mo_core = mc.mo_coeff[:,:norbCore]
+mo_rest = mc.mo_coeff[:,norbCore:norbCore + norbAct]
+core_dm = 2 * mo_core.dot(mo_core.T)
+corevhf = mc.get_veff(mol, core_dm)
+energy_core = mol.energy_nuc()
+energy_core += np.einsum('ij,ji', core_dm, mc.get_hcore())
+energy_core += np.einsum('ij,ji', core_dm, corevhf) * .5
+h1eff = mo_rest.T.dot(mc.get_hcore() + corevhf).dot(mo_rest)
+eri = ao2mo.kernel(mol, mo_rest)
+tools.fcidump.from_integrals('FCIDUMP', h1eff, eri, norbAct, nelecAct, energy_core, tol=1e-12)
+#INFO: ******************** input file end ********************
+
+
+System: ('Linux', 'compute-0-20.local', '2.6.32-504.16.2.el6.x86_64', '#1 SMP Wed Apr 22 06:48:29 UTC 2015', 'x86_64', 'x86_64')  Threads 16
+Python 2.7.15 |Anaconda, Inc.| (default, May  1 2018, 23:32:55) 
+[GCC 7.2.0]
+numpy 1.15.1  scipy 1.1.0
+Date: Thu Jun 11 10:58:24 2020
+PySCF version 1.7.1
+PySCF path  /home/nsb37/pyscf/pyscf
+GIT ORIG_HEAD f9a419e89c2fa6ea63cd0445a6fc1dde4109b47b
+GIT HEAD      ref: refs/heads/master
+GIT master branch  97008722ba492c9d60fa46535f156620355ae933
+
+[CONFIG] conf_file None
+[INPUT] verbose = 4
+[INPUT] num. atoms = 2
+[INPUT] num. electrons = 14
+[INPUT] charge = 0
+[INPUT] spin (= nelec alpha-beta = 2S) = 0
+[INPUT] symmetry 0 subgroup None
+[INPUT] Mole.unit = angstrom
+[INPUT]  1 N      0.000000000000   0.000000000000   0.000000000000 AA    0.000000000000   0.000000000000   0.000000000000 Bohr
+[INPUT]  2 N      0.000000000000   0.000000000000   1.322940000000 AA    0.000000000000   0.000000000000   2.499994279232 Bohr
+
+nuclear repulsion = 19.6000448509229
+number of shells = 28
+number of NR pGTOs = 420
+number of NR cGTOs = 378
+basis = {'N': [[0, [432300.0, 5.59e-06, -1.23e-06, 0.0, 0.0, 0.0, 0.0, 0.0], [64700.0, 4.351e-05, -9.58e-06, 0.0, 0.0, 0.0, 0.0, 0.0], [14720.0, 0.00022893, -5.051e-05, 0.0, 0.0, 0.0, 0.0, 0.0], [4170.0, 0.00096502, -0.00021264, 0.0, 0.0, 0.0, 0.0, 0.0], [1361.0, 0.00350219, -0.00077534, 0.0, 0.0, 0.0, 0.0, 0.0], [491.2, 0.01129212, -0.00250624, 0.0, 0.0, 0.0, 0.0, 0.0], [191.6, 0.03261283, -0.00736529, 0.0, 0.0, 0.0, 0.0, 0.0], [79.41, 0.08329727, -0.01930167, 0.0, 0.0, 0.0, 0.0, 0.0], [34.53, 0.1799857, -0.04471738, 0.0, 0.0, 0.0, 0.0, 0.0], [15.58, 0.3050035, -0.08606647, 0.0, 0.0, 0.0, 0.0, 0.0], [7.232, 0.3411593, -0.1332963, 0.0, 0.0, 0.0, 0.0, 0.0], [3.382, 0.1774827, -0.1059655, 1.0, 0.0, 0.0, 0.0, 0.0], [1.369, 0.01988409, 0.1346673, 0.0, 1.0, 0.0, 0.0, 0.0], [0.6248, -0.00124663, 0.4339401, 0.0, 0.0, 1.0, 0.0, 0.0], [0.2747, 0.00104011, 0.452949, 0.0, 0.0, 0.0, 1.0, 0.0], [0.1192, -0.00012659, 0.1340216, 0.0, 0.0, 0.0, 0.0, 1.0]], [0, [0.04714, 1.0]], [1, [415.9, 0.00014841, 0.0, 0.0, 0.0, 0.0, 0.0], [98.61, 0.00127634, 0.0, 0.0, 0.0, 0.0, 0.0], [31.92, 0.00670242, 0.0, 0.0, 0.0, 0.0, 0.0], [12.0, 0.0252617, 0.0, 0.0, 0.0, 0.0, 0.0], [4.919, 0.07518943, 0.0, 0.0, 0.0, 0.0, 0.0], [2.148, 0.1740151, 1.0, 0.0, 0.0, 0.0, 0.0], [0.9696, 0.2927921, 0.0, 1.0, 0.0, 0.0, 0.0], [0.4399, 0.3482648, 0.0, 0.0, 1.0, 0.0, 0.0], [0.1978, 0.2559365, 0.0, 0.0, 0.0, 1.0, 0.0], [0.08603, 0.06947929, 0.0, 0.0, 0.0, 0.0, 1.0]], [1, [0.0315, 1.0]], [2, [6.717, 1.0, 0.0, 0.0, 0.0, 0.0], [2.896, 0.0, 1.0, 0.0, 0.0, 0.0], [1.249, 0.0, 0.0, 1.0, 0.0, 0.0], [0.538, 0.0, 0.0, 0.0, 1.0, 0.0], [0.232, 0.0, 0.0, 0.0, 0.0, 1.0]], [2, [0.0874, 1.0]], [3, [3.829, 1.0, 0.0, 0.0, 0.0], [1.795, 0.0, 1.0, 0.0, 0.0], [0.841, 0.0, 0.0, 1.0, 0.0], [0.394, 0.0, 0.0, 0.0, 1.0]], [3, [0.151, 1.0]], [4, [3.856, 1.0, 0.0, 0.0], [1.702, 0.0, 1.0, 0.0], [0.751, 0.0, 0.0, 1.0]], [4, [0.326, 1.0]], [5, [2.875, 1.0, 0.0], [1.17, 0.0, 1.0]], [5, [0.587, 1.0]], [6, [2.099, 1.0]], [6, [1.041, 1.0]]]}
+ecp = {}
+CPU time:         0.25
+
+
+******** <class 'pyscf.scf.hf.RHF'> ********
+method = RHF
+initial guess = minao
+damping factor = 0
+level_shift factor = 0
+DIIS = <class 'pyscf.scf.diis.CDIIS'>
+diis_start_cycle = 1
+diis_space = 8
+SCF conv_tol = 1e-09
+SCF conv_tol_grad = None
+SCF max_cycles = 50
+direct_scf = True
+direct_scf_tol = 1e-13
+chkfile to save SCF result = N2_HF.chk
+max_memory 4000 MB (current use 60 MB)
+Set gradient conv threshold to 3.16228e-05
+init E= -108.377080664004
+  HOMO = -0.347997090569681  LUMO = -0.0145564467352461
+cycle= 1 E= -108.825852917484  delta_E= -0.449  |g|= 0.372  |ddm|= 2.31
+  HOMO = -0.598583778033262  LUMO = -0.0063588149952935
+cycle= 2 E= -108.856240116323  delta_E= -0.0304  |g|= 0.114  |ddm|= 0.608
+  HOMO = -0.535453776084482  LUMO = 0.0478718189337898
+cycle= 3 E= -108.858847113145  delta_E= -0.00261  |g|= 0.0207  |ddm|= 0.159
+  HOMO = -0.53472780522406  LUMO = 0.048730595822603
+cycle= 4 E= -108.859044341823  delta_E= -0.000197  |g|= 0.00213  |ddm|= 0.0501
+  HOMO = -0.534998864809548  LUMO = 0.0487326010308318
+cycle= 5 E= -108.859045519119  delta_E= -1.18e-06  |g|= 0.000194  |ddm|= 0.00516
+  HOMO = -0.535023506168048  LUMO = 0.0487304709567848
+cycle= 6 E= -108.859045538413  delta_E= -1.93e-08  |g|= 4.08e-05  |ddm|= 0.000509
+  HOMO = -0.535008417334846  LUMO = 0.0487303374027232
+cycle= 7 E= -108.859045539178  delta_E= -7.66e-10  |g|= 6.61e-06  |ddm|= 9.23e-05
+  HOMO = -0.535008384950862  LUMO = 0.0487302974851123
+Extra cycle  E= -108.859045539199  delta_E= -2.02e-11  |g|= 2e-06  |ddm|= 1.41e-05
+converged SCF energy = -108.859045539199
+
+******** <class 'pyscf.mcscf.mc1step.CASSCF'> ********
+CAS (5e+5e, 8o), ncore = 2, nvir = 368
+max_cycle_macro = 30
+max_cycle_micro = 4
+conv_tol = 1e-07
+conv_tol_grad = None
+orbital rotation max_stepsize = 0.02
+augmented hessian ah_max_cycle = 30
+augmented hessian ah_conv_tol = 1e-12
+augmented hessian ah_linear dependence = 1e-14
+augmented hessian ah_level shift = 0
+augmented hessian ah_start_tol = 2.5
+augmented hessian ah_start_cycle = 3
+augmented hessian ah_grad_trust_region = 3
+kf_trust_region = 3
+kf_interval = 4
+ci_response_space = 4
+ci_grad_trust_region = 3
+with_dep4 0
+natorb = False
+canonicalization = True
+sorting_mo_energy = False
+ao2mo_level = 2
+chkfile = N2_SHCISCF.chk
+max_memory 4000 MB (current use 750 MB)
+internal_rotation = False
+
+******** SHCI flags ********
+executable             = /home/nsb37/Dice_github/Dice
+mpiprefix              = mpirun
+scratchDirectory       = /scratch/nsb37/159773/TMPDIR/76311
+integralFile           = ./FCIDUMP
+configFile             = ./input.dat
+outputFile             = ./output.dat
+maxIter                = 6
+sweep_iter             = [    0]
+sweep_epsilon          = [    0]
+nPTiter                = 0
+Stochastic             = True
+restart                = False
+fullrestart            = False
+num_thrds              = 1
+memory                 = None
+
+CASCI E = -108.927471040751  S^2 = 0.0000000
+Set conv_tol_grad to 0.000316228
+macro iter 1 (21 JK  4 micro), CASSCF E = -109.002528797661  dE = -0.075057757  S^2 = 0.0000000
+               |grad[o]|=0.0882  |grad[c]|= None  |ddm|=0.133
+macro iter 2 (21 JK  4 micro), CASSCF E = -109.019395564039  dE = -0.016866766  S^2 = 0.0000000
+               |grad[o]|=0.028  |grad[c]|= None  |ddm|=0.0153
+macro iter 3 (21 JK  4 micro), CASSCF E = -109.045785039602  dE = -0.026389476  S^2 = 0.0000000
+               |grad[o]|=0.0354  |grad[c]|= None  |ddm|=0.0199
+macro iter 4 (21 JK  4 micro), CASSCF E = -109.064579654333  dE = -0.018794615  S^2 = 0.0000000
+               |grad[o]|=0.0375  |grad[c]|= None  |ddm|=0.0138
+macro iter 5 (13 JK  4 micro), CASSCF E = -109.066683468962  dE = -0.0021038146  S^2 = 0.0000000
+               |grad[o]|=0.0157  |grad[c]|= None  |ddm|=0.00329
+macro iter 6 (3 JK  1 micro), CASSCF E = -109.066683476627  dE = -7.6643971e-09  S^2 = 0.0000000
+               |grad[o]|=0.000111  |grad[c]|= None  |ddm|=    0
+1-step CASSCF converged in 6 macro (100 JK 21 micro) steps
+CASSCF canonicalization
+Density matrix diagonal elements [1.98520452 1.98740152 1.97097018 1.88897622 1.88897622 0.04150311
+ 0.11848412 0.11848412]
+CASSCF energy = -109.066683476627
+CASCI E = -109.066683476627  E(CI) = -29.6325580261177  S^2 = 0.0000000

@@ -1,0 +1,47 @@
+{
+    "print": {
+        "readSCNorms": "true"
+    },
+    "wavefunction": {
+        "name": "scpt",
+        "numAct": "32",
+        "numCore": "10",
+        "overlapCutoff": "1.0e-8",
+        "determinants": "dets"
+    },
+    "sampling": {
+        "stochasticIterNorms": "500",
+        "nIterFindInitDets": "50",
+        "numSCSamples": "900",
+        "resTimeNEVPT_Ene": "0.4",
+        "epsilon": "1.0e-8",
+        "seed": "456813",
+        "efficientNEVPT_2": "true",
+        "determCCVV": "true",
+        "SCEnergiesBurnIn": "50",
+        "SCNormsBurnIn": "50"
+    }
+}
+
+Reading integrals
+Finished reading integrals
+Starting heat bath integral construction
+Finished heat bath integral construction
+Reading active space determinants
+Finished reading determinants, hash table bucket count: 67108864
+Integrals and wave function preparation finished in 304.8 s
+
+Deterministic CCVV energy:  -0.177447337805
+
+About to sample the norms of the strongly contracted states...
+
+About to allocate arrays for sampling...
+Total number of strongly contracted states to sample: 131329
+Allocation of sampling arrays now finished.
+
+About to read norm data...
+Reading complete.
+
+Now sampling the NEVPT2 energy...
+Total cumulative squared norm (process 0): 14.9999826997
+

@@ -1,0 +1,33 @@
+*File 'NEVPT2_CCVV.inp'  nOrb = 182(R)  nElec = 14  Ms2 = 0  iWfSym = 0
+ Performing a restricted NEVPT2_CCVV calculation with spatial orbitals.
+
+ Size of working set:                     10 mb
+ Size of Hamiltonian:                      0 mb
+ Size of CI amplitude vector:             34 mb [4513785 entries/vec]
+
+ Convergence thresholds:   THRDEN = 1.00e-05  THRVAR = 1.00e-05
+
+ ITER.      SQ.NORM        ENERGY      ENERGY CHANGE     VAR       TIME     DIIS
+   1       0.95399738    87.68851524    87.68851524    1.08e+04      0.08
+   2       0.17107275    11.29595313   -76.39256211    1.13e+03      0.02
+   3       0.04218772     2.30737634    -8.98857679    2.19e+02      0.02
+   4       0.01058490     0.54825769    -1.75911865    6.70e+01      0.02
+   5       0.00250411     0.06409727    -0.48416042    9.43e+00      0.02
+   6       0.00081189    -0.02569623    -0.08979350    1.25e+00      0.02
+   7       0.00056663    -0.03661230    -0.01091607    2.86e-01      0.02
+   8       0.00048345    -0.03974550    -0.00313320    4.77e-02      0.02
+   9       0.00047102    -0.04020693    -0.00046143    8.81e-03      0.02
+  10       0.00046859    -0.04028816    -0.00008123    1.57e-03      0.02
+  11       0.00046799    -0.04030473    -0.00001657    5.77e-04      0.02
+  12       0.00046787    -0.04030834    -0.00000361    1.04e-04      0.02
+  13       0.00046783    -0.04030925    -0.00000091    2.22e-05      0.02
+  14       0.00046783    -0.04030945    -0.00000020    3.42e-06      0.02
+
+ Time for main loop:                               0.33 sec
+ Time for residual:                                0.00 sec
+ Time for rest:                                    0.33 sec
+
+ Coefficient of reference function    46.23363631990062
+ Reference energy                      0.00000000000000
+
+!NEVPT2_CCVV STATE 1 ENERGY           -0.04030944519666

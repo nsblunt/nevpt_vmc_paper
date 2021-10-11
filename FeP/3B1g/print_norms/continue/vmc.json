@@ -1,0 +1,27 @@
+{
+  "print":
+  {
+    "SCNorms": true,
+    "readSCNorms": false,
+    "continueSCNorms": true,
+    "sampleNEVPT2Energy": false
+  },
+  "wavefunction":
+  {
+    "name": "scpt",
+    "numAct": 29,
+    "numCore": 44,
+    "overlapCutoff": 1.0e-8,
+    "determinants": "dets"
+  },
+  "sampling":
+  {
+    "stochasticIterNorms": 500,
+    "nIterFindInitDets": 100,
+    "epsilon": 1.0e-8,
+    "seed": 1279241,
+    "efficientNEVPT_2": true,
+    "determCCVV": true,
+    "SCNormsBurnIn": 50
+  }
+}

@@ -1,0 +1,11 @@
+method NEVPT2_CCAV
+orb-type spatial/MO
+nelec 120
+nact 32
+nactorb 29
+ms2 2
+int1e/fock int/int1eff.npy
+thr-den 1.000000e-05
+thr-var 1.000000e-05
+thr-trunc 1.000000e-04
+work-space-mb 50000

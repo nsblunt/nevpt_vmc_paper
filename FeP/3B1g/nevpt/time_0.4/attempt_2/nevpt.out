@@ -1,0 +1,56 @@
+{
+    "print": {
+        "readSCNorms": "true"
+    },
+    "wavefunction": {
+        "name": "scpt",
+        "numAct": "29",
+        "numCore": "44",
+        "overlapCutoff": "1.0e-8",
+        "determinants": "dets"
+    },
+    "sampling": {
+        "stochasticIterNorms": "1000",
+        "nIterFindInitDets": "100",
+        "numSCSamples": "420",
+        "resTimeNEVPT_Ene": "0.4",
+        "epsilon": "1.0e-8",
+        "seed": "6391200",
+        "efficientNEVPT_2": "true",
+        "determCCVV": "true"
+    }
+}
+
+Reading integrals
+Finished reading integrals
+Starting heat bath integral construction
+Finished heat bath integral construction
+Reading active space determinants
+Finished reading determinants, hash table bucket count: 33554432
+Integrals and wave function preparation finished in 275.695 s
+
+Deterministic CCVV energy:  -1.50979049789
+
+About to sample the norms of the strongly contracted states...
+
+About to allocate arrays for sampling...
+Total number of strongly contracted states to sample: 284636
+Allocation of sampling arrays now finished.
+
+About to read norm data...
+Reading complete.
+
+Now sampling the NEVPT2 energy...
+Total cumulative squared norm (process 0): 2.43296181432
+
+MPI Barrier time: 6805.20660305 seconds
+Energy error estimate: 0.00123673710748
+Bias correction error estimate: 5.12353079906e-06
+Sampling complete.
+
+Total time for energy sampling 37264.1611719 seconds
+CAS energy: -2244.995689
+SC-NEVPT2(s) second-order energy: -0.918432963
+Total SC-NEVPT(s) energy: -2245.914122
+SC-NEVPT2(s) second-order energy with CCVV:  -2.428223461
+Total SC-NEVPT2(s) energy with CCVV:  -2247.423912

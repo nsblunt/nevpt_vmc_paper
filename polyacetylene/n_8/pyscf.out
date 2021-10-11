@@ -1,0 +1,391 @@
+('n:', 8)
+atomString:
+C 0.725 0.0 0.0;
+C -0.725 -0.0 -0.0;
+C 1.395 1.16047404107 0.0;
+C -1.395 -1.16047404107 -0.0;
+H 1.265 -0.935307436087 0.0;
+H -1.265 0.935307436087 -0.0;
+C 2.845 1.16047404107 0.0;
+C -2.845 -1.16047404107 -0.0;
+H 0.855 2.09578147716 0.0;
+H -0.855 -2.09578147716 -0.0;
+C 3.515 2.32094808214 0.0;
+C -3.515 -2.32094808214 -0.0;
+H 3.385 0.225166604984 0.0;
+H -3.385 -0.225166604984 -0.0;
+C 4.965 2.32094808214 0.0;
+C -4.965 -2.32094808214 -0.0;
+H 2.975 3.25625551823 0.0;
+H -2.975 -3.25625551823 -0.0;
+C 5.635 3.48142212321 0.0;
+C -5.635 -3.48142212321 -0.0;
+H 5.505 1.38564064606 0.0;
+H -5.505 -1.38564064606 -0.0;
+C 7.085 3.48142212321 0.0;
+C -7.085 -3.48142212321 -0.0;
+H 5.095 4.4167295593 0.0;
+H -5.095 -4.4167295593 -0.0;
+C 7.755 4.64189616428 0.0;
+C -7.755 -4.64189616428 -0.0;
+H 7.625 2.54611468713 0.0;
+H -7.625 -2.54611468713 -0.0;
+H 8.835 4.64189616428 0.0;
+H -8.835 -4.64189616428 -0.0;
+H 7.215 5.57720360037 0.0;
+H -7.215 -5.57720360037 -0.0;
+
+#INFO: **** input file is /state/partition1/nsb37/158189/prepVMC.py ****
+import numpy as np
+from pyscf import gto, scf, ao2mo, mcscf, tools, fci, mp, symm, lib
+from pyscf.shciscf import shci
+import math, os, time, sys
+#import NEVPT2Helper as nev
+
+def myocc(mf):
+   mol = mf.mol
+   irrep_id = mol.irrep_id
+   so = mol.symm_orb
+   orbsym = symm.label_orb_symm(mol, irrep_id, so, mf.mo_coeff)
+   doccsym = np.array(orbsym)[mf.mo_occ==2]
+   soccsym = np.array(orbsym)[mf.mo_occ==1]
+   for ir, irname in enumerate(mol.irrep_name):
+     print('%s, double-occ = %d, single-occ = %d' %
+         (irname, sum(doccsym==ir), sum(soccsym==ir)))
+
+# trans-polyacetylene: C_{2n}H_{2n+2}
+if len(sys.argv) == 2:
+    n = int(sys.argv[1])
+else:
+    n = 2
+
+print("n:", n)
+
+# bond lengths and angles (assuming uniform c=c, c-c and c-h bond lengths, and all angles to be 120 degrees)
+b1 = 1.45
+b2 = 1.34
+bh = 1.08
+t = 2*np.pi/3
+
+if n%2 == 0:
+  # vector displacements on one side
+  c0 = np.array([b1/2, 0., 0.])
+  cs = np.array([b1, 0., 0.])
+  cd = np.array([b2/2, b2*3**0.5/2, 0.])
+  ch = np.array([bh/2, -bh*3**0.5/2, 0.])
+  cht = np.array([bh, 0., 0.])
+
+  #atomString = f'C {c0[0]} {c0[1]} {c0[2]};\nC {-c0[0]} {-c0[1]} {-c0[2]};\n'
+  atomString = 'C {} {} {};\nC {} {} {};\n'.format(c0[0], c0[1], c0[2], -c0[0], -c0[1], -c0[2])
+  currentC = c0
+  for i in range(n-1):
+      if i%2 == 0:
+          newC = currentC + cd
+          newH = currentC + ch
+      else:
+          newC = currentC + cs
+          newH = currentC - ch
+      #atomString += f'C {newC[0]} {newC[1]} {newC[2]};\nC {-newC[0]} {-newC[1]} {-newC[2]};\n'
+      #atomString += f'H {newH[0]} {newH[1]} {newH[2]};\nH {-newH[0]} {-newH[1]} {-newH[2]};\n'
+      atomString += 'C {} {} {};\nC {} {} {};\n'.format(newC[0], newC[1], newC[2], -newC[0], -newC[1], -newC[2])
+      atomString += 'H {} {} {};\nH {} {} {};\n'.format(newH[0], newH[1], newH[2], -newH[0], -newH[1], -newH[2])
+      currentC = newC
+
+  # terminal h's
+  th1 = currentC + cht
+  th2 = currentC - ch
+  #atomString += f'H {th1[0]} {th1[1]} {th1[2]};\nH {-th1[0]} {-th1[1]} {-th1[2]};\n'
+  #atomString += f'H {th2[0]} {th2[1]} {th2[2]};\nH {-th2[0]} {-th2[1]} {-th2[2]};\n'
+  atomString += 'H {} {} {};\nH {} {} {};\n'.format(th1[0], th1[1], th1[2], -th1[0], -th1[1], -th1[2])
+  atomString += 'H {} {} {};\nH {} {} {};\n'.format(th2[0], th2[1], th2[2], -th2[0], -th2[1], -th2[2])
+
+else:
+  # vector displacements on one side
+  c0 = np.array([b2/2, 0., 0.])
+  cd = np.array([b2, 0., 0.])
+  cs = np.array([b1/2, b1*3**0.5/2, 0.])
+  ch = np.array([bh/2, -bh*3**0.5/2, 0.])
+  cht = np.array([bh/2, bh*3**0.5/2, 0.])
+
+  #atomString = f'C {c0[0]} {c0[1]} {c0[2]};\nC {-c0[0]} {-c0[1]} {-c0[2]};\n'
+  atomString = 'C {} {} {};\nC {} {} {};\n'.format(c0[0], c0[1], c0[2], -c0[0], -c0[1], -c0[2])
+  currentC = c0
+  for i in range(n-1):
+      if i%2 == 0:
+          newC = currentC + cs
+          newH = currentC + ch
+      else:
+          newC = currentC + cd
+          newH = currentC - ch
+      #atomString += f'C {newC[0]} {newC[1]} {newC[2]};\nC {-newC[0]} {-newC[1]} {-newC[2]};\n'
+      #atomString += f'H {newH[0]} {newH[1]} {newH[2]};\nH {-newH[0]} {-newH[1]} {-newH[2]};\n'
+      atomString += 'C {} {} {};\nC {} {} {};\n'.format(newC[0], newC[1], newC[2], -newC[0], -newC[1], -newC[2])
+      atomString += 'H {} {} {};\nH {} {} {};\n'.format(newH[0], newH[1], newH[2], -newH[0], -newH[1], -newH[2])
+      currentC = newC
+
+  # terminal h's
+  th1 = currentC + cht
+  th2 = currentC + ch
+  #atomString += f'H {th1[0]} {th1[1]} {th1[2]};\nH {-th1[0]} {-th1[1]} {-th1[2]};\n'
+  #atomString += f'H {th2[0]} {th2[1]} {th2[2]};\nH {-th2[0]} {-th2[1]} {-th2[2]};\n'
+  atomString += 'H {} {} {};\nH {} {} {};\n'.format(th1[0], th1[1], th1[2], -th1[0], -th1[1], -th1[2])
+  atomString += 'H {} {} {};\nH {} {} {};\n'.format(th2[0], th2[1], th2[2], -th2[0], -th2[1], -th2[2])
+
+print("atomString:")
+print(atomString)
+
+mol = gto.M(atom = atomString, basis = '6-31g', verbose = 4, unit = 'angstrom', symmetry = 1, spin = 0)
+mf = scf.RHF(mol)
+mf.max_cycle = 500
+mf.chkfile = '{}_HF.chk'.format(n)
+mf.kernel()
+
+# shciscf
+norbAct = 2*n
+nelecAct = 2*n
+mc = shci.SHCISCF(mf, norbAct, nelecAct)
+mc.chkfile = '{}_SHCISCF.chk'.format(n)
+
+# for icpt integrals uncomment the following and comment out the mc calculation, FCIDUMP generation, etc.
+#chkfile = f'{n}_SHCISCF.chk'
+#mc.__dict__.update(lib.chkfile.load(chkfile, 'mcscf'))
+
+# pi system active space
+mo = mc.sort_mo_by_irrep({'Ag': 0,'Bu': 0,'Au': n,'Bg': n}, {'Ag': 3*n+1,'Bu': 3*n,'Au': 0,'Bg': 0})
+
+# these need to be adjusted with system size
+mc.fcisolver.sweep_iter = [0, 2, 4]
+mc.fcisolver.sweep_epsilon = [1e-3, 1e-4, 5e-5]
+mc.fcisolver.nPTiter = 0
+mc.max_cycle_macro = 20
+#mc.internal_rotation = True
+mc.fcisolver.nPTiter = 0  # Turns off PT calculation, i.e. no PTRDM.
+#mc.fcisolver.mpiprefix = "mpirun -np 24"
+#mc.fcisolver.prefix = "/rc_scratch/anma2640/polyacetylene"
+mc.kernel(mo)
+
+# prep nevpt
+
+norbFrozen = 2*n
+norbCore = 6*n + 1
+
+fileh = open("moEne.txt", 'w')
+for i in range(mol.nao - norbFrozen):
+  fileh.write('%.12e\n'%(mc.mo_energy[i + norbFrozen]))
+fileh.close()
+
+tools.fcidump.from_mc(mc, 'FCIDUMP.h5', nFrozen = norbFrozen)
+
+# active space integrals for dice calculation
+mo_core = mc.mo_coeff[:,:norbCore]
+mo_rest = mc.mo_coeff[:,norbCore:norbCore + norbAct]
+core_dm = 2 * mo_core.dot(mo_core.T)
+corevhf = mc.get_veff(mol, core_dm)
+energy_core = mol.energy_nuc()
+energy_core += np.einsum('ij,ji', core_dm, mc.get_hcore())
+energy_core += np.einsum('ij,ji', core_dm, corevhf) * .5
+h1eff = mo_rest.T.dot(mc.get_hcore() + corevhf).dot(mo_rest)
+eri = ao2mo.kernel(mol, mo_rest)
+tools.fcidump.from_integrals('FCIDUMP', h1eff, eri, norbAct, nelecAct, energy_core)
+
+#this is the scratch file for writing potentially larger integral files
+#intfolder = "int/"
+#os.system("mkdir -p "+intfolder)
+##
+#
+#dm2a = np.zeros((norb, norb, norb, norb))
+#file2pdm = "spatialRDM.0.0.txt"
+#file2pdm = file2pdm.encode()  # .encode for python3 compatibility
+#shci.r2RDM(dm2a, norb, file2pdm)
+#dm1 = np.einsum('ikjj->ki', dm2a)
+#dm1 /= (nelec - 1)
+##dm1, dm2a = mc.fcisolver.make_rdm12(0, mc.ncas, mc.nelecas)
+#dm2 = np.einsum('ijkl->ikjl', dm2a)
+##
+#np.save(intfolder+"E2.npy", np.asfortranarray(dm2))
+#np.save(intfolder+"E1.npy", np.asfortranarray(dm1))
+##
+#print ("trace of 2rdm", np.einsum('ijij',dm2))
+#print ("trace of 1rdm", np.einsum('ii',dm1))
+##
+#E1eff = dm1 #for state average
+#nev.writeNEVPTIntegrals(mc, dm1, dm2, E1eff, norbFrozen, intfolder)
+#nev.write_ic_inputs(mc.nelecas[0]+mc.nelecas[1], mc.ncore, mc.ncas, norbFrozen, mc.nelecas[0]-mc.nelecas[1],
+#                   'NEVPT2')
+#INFO: ******************** input file end ********************
+
+
+System: ('Linux', 'compute-0-7.local', '2.6.32-504.16.2.el6.x86_64', '#1 SMP Wed Apr 22 06:48:29 UTC 2015', 'x86_64', 'x86_64')  Threads 12
+Python 2.7.15 |Anaconda, Inc.| (default, May  1 2018, 23:32:55) 
+[GCC 7.2.0]
+numpy 1.15.1  scipy 1.1.0
+Date: Fri May 22 10:08:15 2020
+PySCF version 1.7.1
+PySCF path  /home/nsb37/pyscf/pyscf
+GIT ORIG_HEAD f9a419e89c2fa6ea63cd0445a6fc1dde4109b47b
+GIT HEAD      ref: refs/heads/master
+GIT master branch  97008722ba492c9d60fa46535f156620355ae933
+
+[CONFIG] conf_file None
+[INPUT] verbose = 4
+[INPUT] num. atoms = 34
+[INPUT] num. electrons = 114
+[INPUT] charge = 0
+[INPUT] spin (= nelec alpha-beta = 2S) = 0
+[INPUT] symmetry 1 subgroup None
+[INPUT] Mole.unit = angstrom
+[INPUT]  1 C      0.725000000000   0.000000000000   0.000000000000 AA    1.370051440310   0.000000000000   0.000000000000 Bohr
+[INPUT]  2 C     -0.725000000000   0.000000000000   0.000000000000 AA   -1.370051440310   0.000000000000   0.000000000000 Bohr
+[INPUT]  3 C      1.395000000000   1.160474041070   0.000000000000 AA    2.636167943768   2.192978112290   0.000000000000 Bohr
+[INPUT]  4 C     -1.395000000000  -1.160474041070   0.000000000000 AA   -2.636167943768  -2.192978112290   0.000000000000 Bohr
+[INPUT]  5 H      1.265000000000  -0.935307436087   0.000000000000 AA    2.390503547575  -1.767474896474   0.000000000000 Bohr
+[INPUT]  6 H     -1.265000000000   0.935307436087   0.000000000000 AA   -2.390503547575   1.767474896474   0.000000000000 Bohr
+[INPUT]  7 C      2.845000000000   1.160474041070   0.000000000000 AA    5.376270824388   2.192978112290   0.000000000000 Bohr
+[INPUT]  8 C     -2.845000000000  -1.160474041070   0.000000000000 AA   -5.376270824388  -2.192978112290   0.000000000000 Bohr
+[INPUT]  9 H      0.855000000000   2.095781477160   0.000000000000 AA    1.615715836503   3.960453008769   0.000000000000 Bohr
+[INPUT] 10 H     -0.855000000000  -2.095781477160   0.000000000000 AA   -1.615715836503  -3.960453008769   0.000000000000 Bohr
+[INPUT] 11 C      3.515000000000   2.320948082140   0.000000000000 AA    6.642387327846   4.385956224579   0.000000000000 Bohr
+[INPUT] 12 C     -3.515000000000  -2.320948082140   0.000000000000 AA   -6.642387327846  -4.385956224579   0.000000000000 Bohr
+[INPUT] 13 H      3.385000000000   0.225166604984   0.000000000000 AA    6.396722931653   0.425503215818   0.000000000000 Bohr
+[INPUT] 14 H     -3.385000000000  -0.225166604984   0.000000000000 AA   -6.396722931653  -0.425503215818   0.000000000000 Bohr
+[INPUT] 15 C      4.965000000000   2.320948082140   0.000000000000 AA    9.382490208466   4.385956224579   0.000000000000 Bohr
+[INPUT] 16 C     -4.965000000000  -2.320948082140   0.000000000000 AA   -9.382490208466  -4.385956224579   0.000000000000 Bohr
+[INPUT] 17 H      2.975000000000   3.256255518230   0.000000000000 AA    5.621935220581   6.153431121058   0.000000000000 Bohr
+[INPUT] 18 H     -2.975000000000  -3.256255518230   0.000000000000 AA   -5.621935220581  -6.153431121058   0.000000000000 Bohr
+[INPUT] 19 C      5.635000000000   3.481422123210   0.000000000000 AA   10.648606711924   6.578934336869   0.000000000000 Bohr
+[INPUT] 20 C     -5.635000000000  -3.481422123210   0.000000000000 AA  -10.648606711924  -6.578934336869   0.000000000000 Bohr
+[INPUT] 21 H      5.505000000000   1.385640646060   0.000000000000 AA   10.402942315731   2.618481328119   0.000000000000 Bohr
+[INPUT] 22 H     -5.505000000000  -1.385640646060   0.000000000000 AA  -10.402942315731  -2.618481328119   0.000000000000 Bohr
+[INPUT] 23 C      7.085000000000   3.481422123210   0.000000000000 AA   13.388709592543   6.578934336869   0.000000000000 Bohr
+[INPUT] 24 C     -7.085000000000  -3.481422123210   0.000000000000 AA  -13.388709592543  -6.578934336869   0.000000000000 Bohr
+[INPUT] 25 H      5.095000000000   4.416729559300   0.000000000000 AA    9.628154604659   8.346409233348   0.000000000000 Bohr
+[INPUT] 26 H     -5.095000000000  -4.416729559300   0.000000000000 AA   -9.628154604659  -8.346409233348   0.000000000000 Bohr
+[INPUT] 27 C      7.755000000000   4.641896164280   0.000000000000 AA   14.654826096002   8.771912449158   0.000000000000 Bohr
+[INPUT] 28 C     -7.755000000000  -4.641896164280   0.000000000000 AA  -14.654826096002  -8.771912449158   0.000000000000 Bohr
+[INPUT] 29 H      7.625000000000   2.546114687130   0.000000000000 AA   14.409161699809   4.811459440408   0.000000000000 Bohr
+[INPUT] 30 H     -7.625000000000  -2.546114687130   0.000000000000 AA  -14.409161699809  -4.811459440408   0.000000000000 Bohr
+[INPUT] 31 H      8.835000000000   4.641896164280   0.000000000000 AA   16.695730310532   8.771912449158   0.000000000000 Bohr
+[INPUT] 32 H     -8.835000000000  -4.641896164280   0.000000000000 AA  -16.695730310532  -8.771912449158   0.000000000000 Bohr
+[INPUT] 33 H      7.215000000000   5.577203600370   0.000000000000 AA   13.634373988737  10.539387345638   0.000000000000 Bohr
+[INPUT] 34 H     -7.215000000000  -5.577203600370   0.000000000000 AA  -13.634373988737 -10.539387345638   0.000000000000 Bohr
+
+nuclear repulsion = 808.5039019264
+point group symmetry = C2h
+num. orbitals of irrep Ag = 74
+num. orbitals of irrep Bg = 16
+num. orbitals of irrep Au = 16
+num. orbitals of irrep Bu = 74
+number of shells = 116
+number of NR pGTOs = 424
+number of NR cGTOs = 180
+basis = 6-31g
+ecp = {}
+CPU time:         0.53
+
+
+******** <class 'pyscf.scf.hf_symm.SymAdaptedRHF'> ********
+method = SymAdaptedRHF-RHF
+initial guess = minao
+damping factor = 0
+level_shift factor = 0
+DIIS = <class 'pyscf.scf.diis.CDIIS'>
+diis_start_cycle = 1
+diis_space = 8
+SCF conv_tol = 1e-09
+SCF conv_tol_grad = None
+SCF max_cycles = 500
+direct_scf = True
+direct_scf_tol = 1e-13
+chkfile to save SCF result = 8_HF.chk
+max_memory 4000 MB (current use 62 MB)
+Freeze 0 electrons in irreps []
+    114 free electrons in irreps Ag Bg Au Bu
+Set gradient conv threshold to 3.16228e-05
+init E= -620.443771786796
+HOMO (Bg) = -0.145802102075979  LUMO (Au) = -0.0429286323189017
+cycle= 1 E= -615.855297017131  delta_E= 4.59  |g|= 0.577  |ddm|= 5.42
+HOMO (Bg) = -0.234123935261005  LUMO (Au) = 0.0226821150709894
+cycle= 2 E= -615.999177483142  delta_E= -0.144  |g|= 0.155  |ddm|= 1.18
+HOMO (Bg) = -0.22209671835358  LUMO (Au) = 0.0579517065483565
+cycle= 3 E= -616.011858728107  delta_E= -0.0127  |g|= 0.0482  |ddm|= 0.401
+HOMO (Bg) = -0.231998556990777  LUMO (Au) = 0.0540595586299797
+cycle= 4 E= -616.012879546807  delta_E= -0.00102  |g|= 0.0142  |ddm|= 0.079
+HOMO (Bg) = -0.234495325636489  LUMO (Au) = 0.0556847459303314
+cycle= 5 E= -616.013066276576  delta_E= -0.000187  |g|= 0.0052  |ddm|= 0.033
+HOMO (Bg) = -0.234748642058128  LUMO (Au) = 0.0574706653412539
+cycle= 6 E= -616.013095829919  delta_E= -2.96e-05  |g|= 0.0013  |ddm|= 0.0151
+HOMO (Bg) = -0.235114599421844  LUMO (Au) = 0.057662273173406
+cycle= 7 E= -616.013097571465  delta_E= -1.74e-06  |g|= 0.000532  |ddm|= 0.00421
+HOMO (Bg) = -0.235165260646216  LUMO (Au) = 0.057682541183792
+cycle= 8 E= -616.013097676204  delta_E= -1.05e-07  |g|= 6.49e-05  |ddm|= 0.000841
+HOMO (Bg) = -0.235173528926702  LUMO (Au) = 0.0576784232446996
+cycle= 9 E= -616.013097678817  delta_E= -2.61e-09  |g|= 1.86e-05  |ddm|= 0.000202
+HOMO (Bg) = -0.235175493530817  LUMO (Au) = 0.0576781555645351
+cycle= 10 E= -616.013097678966  delta_E= -1.49e-10  |g|= 9.39e-06  |ddm|= 3.86e-05
+HOMO (Bg) = -0.235175636695481  LUMO (Au) = 0.0576781626637396
+Extra cycle  E= -616.013097678998  delta_E= -3.16e-11  |g|= 6.14e-06  |ddm|= 1.87e-05
+converged SCF energy = -616.013097678998
+ncore for each irreps {'Bu': 24, 'Bg': 0, 'Au': 0, 'Ag': 25}
+ncas for each irreps {'Bu': 0, 'Bg': 8, 'Au': 8, 'Ag': 0}
+(0-based) caslst = [48 50 51 52 53 54 55 56 57 58 59 60 63 65 66 67]
+
+******** <class 'pyscf.mcscf.mc1step_symm.SymAdaptedCASSCF'> ********
+CAS (8e+8e, 16o), ncore = 49, nvir = 115
+max_cycle_macro = 20
+max_cycle_micro = 4
+conv_tol = 1e-07
+conv_tol_grad = None
+orbital rotation max_stepsize = 0.02
+augmented hessian ah_max_cycle = 30
+augmented hessian ah_conv_tol = 1e-12
+augmented hessian ah_linear dependence = 1e-14
+augmented hessian ah_level shift = 0
+augmented hessian ah_start_tol = 2.5
+augmented hessian ah_start_cycle = 3
+augmented hessian ah_grad_trust_region = 3
+kf_trust_region = 3
+kf_interval = 4
+ci_response_space = 4
+ci_grad_trust_region = 3
+with_dep4 0
+natorb = False
+canonicalization = True
+sorting_mo_energy = False
+ao2mo_level = 2
+chkfile = 8_SHCISCF.chk
+max_memory 4000 MB (current use 1136 MB)
+internal_rotation = False
+
+******** SHCI flags ********
+executable             = /home/nsb37/Dice_github/Dice
+mpiprefix              = mpirun
+scratchDirectory       = /scratch/nsb37/158189/TMPDIR/3339
+integralFile           = ./FCIDUMP
+configFile             = ./input.dat
+outputFile             = ./output.dat
+maxIter                = 6
+sweep_iter             = [    0,    2,    4]
+sweep_epsilon          = [0.001,0.0001,5e-05]
+nPTiter                = 0
+Stochastic             = True
+restart                = False
+fullrestart            = False
+num_thrds              = 1
+memory                 = None
+
+Active space CI wfn symmetry = Ag
+CASCI E = -616.181579306049  S^2 = 0.0000000
+Set conv_tol_grad to 0.000316228
+macro iter 1 (21 JK  4 micro), CASSCF E = -616.237157998531  dE = -0.055578692  S^2 = 0.0000000
+               |grad[o]|=0.0745  |grad[c]|= None  |ddm|=0.0829
+macro iter 2 (12 JK  4 micro), CASSCF E = -616.238863863701  dE = -0.0017058652  S^2 = 0.0000000
+               |grad[o]|=0.0183  |grad[c]|= None  |ddm|=0.0164
+macro iter 3 (3 JK  1 micro), CASSCF E = -616.238863925485  dE = -6.1783453e-08  S^2 = 0.0000000
+               |grad[o]|=4.6e-05  |grad[c]|= None  |ddm|=    0
+1-step CASSCF converged in 3 macro (36 JK 9 micro) steps
+CASSCF canonicalization
+Density matrix diagonal elements [1.95020505 1.94671879 1.94082292 1.93125405 1.91671123 1.89500883
+ 1.8641637  1.82745362 0.17910152 0.13957498 0.10582449 0.08218263
+ 0.06659258 0.05475831 0.04900503 0.05062232]
+CASSCF energy = -616.238863925485
+CASCI E = -616.238863925485  E(CI) = -21.8750129372937  S^2 = 0.0000000

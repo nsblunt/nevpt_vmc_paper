@@ -1,0 +1,1 @@
+../dice_rdm/spinRDM.0.0.txt

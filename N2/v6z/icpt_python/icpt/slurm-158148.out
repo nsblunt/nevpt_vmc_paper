@@ -1,0 +1,26 @@
+int
+NEVPT2_ACVV.inp
+NEVPT2_CCAV.inp
+NEVPT2_CCVV.inp
+slurm-158148.out
+sub.hci
+Starting job 158148
+
+
+Job Id:	158148
+	Job_Name = hci
+	Job_Owner = nsb37@cerebro
+	job_state = R
+	queue = LONG
+	qtime = Thu May 21 16:06:59 2020
+	mtime = Thu May 21 16:07:00 2020
+	ctime = Sat May 23 16:07:00 2020
+	Account_Name = local
+	exec_host = compute-0-23/16
+	Priority = 6049
+	euser = nsb37(3129)
+	egroup = nsb37(3129)
+	Resource_List.walltime = 48:00:00
+	Resource_List.nodect = 1
+	Resource_List.ncpus = 16
+

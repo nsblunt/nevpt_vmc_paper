@@ -1,0 +1,26 @@
+int
+NEVPT2_ACVV.inp
+NEVPT2_CCAV.inp
+NEVPT2_CCVV.inp
+slurm-162184.out
+sub.hci
+Starting job 162184
+
+
+Job Id:	162184
+	Job_Name = icpt_0
+	Job_Owner = nsb37@cerebro
+	job_state = R
+	queue = LONG
+	qtime = Fri Jul 17 23:05:38 2020
+	mtime = Fri Jul 17 23:05:38 2020
+	ctime = Sun Jul 19 23:05:38 2020
+	Account_Name = local
+	exec_host = compute-0-8/12
+	Priority = 6349
+	euser = nsb37(3129)
+	egroup = nsb37(3129)
+	Resource_List.walltime = 48:00:00
+	Resource_List.nodect = 1
+	Resource_List.ncpus = 12
+

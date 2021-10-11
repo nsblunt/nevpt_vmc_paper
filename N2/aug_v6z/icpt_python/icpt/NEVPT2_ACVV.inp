@@ -1,0 +1,10 @@
+method NEVPT2_ACVV
+orb-type spatial/MO
+nelec 14
+nact 10
+nactorb 8
+ms2 0
+int1e/fock int/int1eff.npy
+thr-den 1.000000e-05
+thr-var 1.000000e-05
+thr-trunc 1.000000e-04

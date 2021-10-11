@@ -1,0 +1,183 @@
+#INFO: **** input file is /state/partition1/nsb37/158134/prepVMC.py ****
+import numpy as np
+import math
+from pyscf import gto, scf, ao2mo, mcscf, tools
+from pyscf.shciscf import shci
+import os
+
+# make your molecule here
+r = 2.5 * 0.529177
+atomstring = "N 0 0 0; N 0 0 %g"%(r)
+mol = gto.M(
+    atom = atomstring,
+    basis = 'cc-pvtz',
+    verbose=4,
+    symmetry=0,
+    spin = 0)
+
+mf = scf.RHF(mol)
+mf.chkfile = 'N2_HF.chk'
+mf.kernel()
+
+norbAct = 8
+nelecAct = 10
+norbFrozen = 0
+
+mc = shci.SHCISCF(mf, norbAct, nelecAct)
+mc.chkfile = 'N2_SHCISCF.chk'
+mc.fcisolver.sweep_iter = [0]
+mc.fcisolver.sweep_epsilon = [0]
+mc.fcisolver.nPTiter = 0
+mc.max_cycle_macro = 30
+mc.fcisolver.nPTiter = 0  # Turns off PT calculation, i.e. no PTRDM.
+mc.kernel()
+
+fileh = open("moEne.txt", 'w')
+for i in range(mol.nao - norbFrozen):
+  fileh.write('%.12e\n'%(mc.mo_energy[i + norbFrozen]))
+fileh.close()
+
+tools.fcidump.from_mc(mc, 'FCIDUMP.h5', nFrozen = norbFrozen)
+
+# active space integrals for dice calculation
+mo_core = mc.mo_coeff[:,:norbCore]
+mo_rest = mc.mo_coeff[:,norbCore:norbCore + norbAct]
+core_dm = 2 * mo_core.dot(mo_core.T)
+corevhf = mc.get_veff(mol, core_dm)
+energy_core = mol.energy_nuc()
+energy_core += np.einsum('ij,ji', core_dm, mc.get_hcore())
+energy_core += np.einsum('ij,ji', core_dm, corevhf) * .5
+h1eff = mo_rest.T.dot(mc.get_hcore() + corevhf).dot(mo_rest)
+eri = ao2mo.kernel(mol, mo_rest)
+tools.fcidump.from_integrals('FCIDUMP', h1eff, eri, norbAct, nelecAct, energy_core, tol=1e-12)
+#INFO: ******************** input file end ********************
+
+
+System: ('Linux', 'compute-0-22.local', '2.6.32-504.16.2.el6.x86_64', '#1 SMP Wed Apr 22 06:48:29 UTC 2015', 'x86_64', 'x86_64')  Threads 16
+Python 2.7.15 |Anaconda, Inc.| (default, May  1 2018, 23:32:55) 
+[GCC 7.2.0]
+numpy 1.15.1  scipy 1.1.0
+Date: Thu May 21 14:42:30 2020
+PySCF version 1.7.1
+PySCF path  /home/nsb37/pyscf/pyscf
+GIT ORIG_HEAD f9a419e89c2fa6ea63cd0445a6fc1dde4109b47b
+GIT HEAD      ref: refs/heads/master
+GIT master branch  97008722ba492c9d60fa46535f156620355ae933
+
+[CONFIG] conf_file None
+[INPUT] verbose = 4
+[INPUT] num. atoms = 2
+[INPUT] num. electrons = 14
+[INPUT] charge = 0
+[INPUT] spin (= nelec alpha-beta = 2S) = 0
+[INPUT] symmetry 0 subgroup None
+[INPUT] Mole.unit = angstrom
+[INPUT]  1 N      0.000000000000   0.000000000000   0.000000000000 AA    0.000000000000   0.000000000000   0.000000000000 Bohr
+[INPUT]  2 N      0.000000000000   0.000000000000   1.322940000000 AA    0.000000000000   0.000000000000   2.499994279232 Bohr
+
+nuclear repulsion = 19.6000448509229
+number of shells = 18
+number of NR pGTOs = 84
+number of NR cGTOs = 60
+basis = cc-pvtz
+ecp = {}
+CPU time:         0.25
+
+
+******** <class 'pyscf.scf.hf.RHF'> ********
+method = RHF
+initial guess = minao
+damping factor = 0
+level_shift factor = 0
+DIIS = <class 'pyscf.scf.diis.CDIIS'>
+diis_start_cycle = 1
+diis_space = 8
+SCF conv_tol = 1e-09
+SCF conv_tol_grad = None
+SCF max_cycles = 50
+direct_scf = True
+direct_scf_tol = 1e-13
+chkfile to save SCF result = N2_HF.chk
+max_memory 4000 MB (current use 60 MB)
+Set gradient conv threshold to 3.16228e-05
+init E= -108.368628573416
+  HOMO = -0.346548681488971  LUMO = -0.00890010061799824
+cycle= 1 E= -108.819931963057  delta_E= -0.451  |g|= 0.357  |ddm|= 1.24
+  HOMO = -0.589208123202571  LUMO = 0.0083420436114094
+cycle= 2 E= -108.847799608651  delta_E= -0.0279  |g|= 0.102  |ddm|= 0.259
+  HOMO = -0.530634934922299  LUMO = 0.0645300655131444
+cycle= 3 E= -108.849991287625  delta_E= -0.00219  |g|= 0.0193  |ddm|= 0.0546
+  HOMO = -0.531833367142261  LUMO = 0.0646550826888998
+cycle= 4 E= -108.85015495879  delta_E= -0.000164  |g|= 0.00173  |ddm|= 0.022
+  HOMO = -0.532095686706866  LUMO = 0.0644396105300647
+cycle= 5 E= -108.850155544285  delta_E= -5.85e-07  |g|= 0.000146  |ddm|= 0.00118
+  HOMO = -0.532143993956136  LUMO = 0.0643881206087518
+cycle= 6 E= -108.850155549391  delta_E= -5.11e-09  |g|= 2.64e-05  |ddm|= 0.000127
+  HOMO = -0.532134060388177  LUMO = 0.0643991256039628
+cycle= 7 E= -108.850155549579  delta_E= -1.88e-10  |g|= 2.53e-06  |ddm|= 2.58e-05
+  HOMO = -0.532133492339825  LUMO = 0.0643996058242673
+Extra cycle  E= -108.850155549582  delta_E= -2.84e-12  |g|= 7.19e-07  |ddm|= 3.13e-06
+converged SCF energy = -108.850155549582
+
+******** <class 'pyscf.mcscf.mc1step.CASSCF'> ********
+CAS (5e+5e, 8o), ncore = 2, nvir = 50
+max_cycle_macro = 30
+max_cycle_micro = 4
+conv_tol = 1e-07
+conv_tol_grad = None
+orbital rotation max_stepsize = 0.02
+augmented hessian ah_max_cycle = 30
+augmented hessian ah_conv_tol = 1e-12
+augmented hessian ah_linear dependence = 1e-14
+augmented hessian ah_level shift = 0
+augmented hessian ah_start_tol = 2.5
+augmented hessian ah_start_cycle = 3
+augmented hessian ah_grad_trust_region = 3
+kf_trust_region = 3
+kf_interval = 4
+ci_response_space = 4
+ci_grad_trust_region = 3
+with_dep4 0
+natorb = False
+canonicalization = True
+sorting_mo_energy = False
+ao2mo_level = 2
+chkfile = N2_SHCISCF.chk
+max_memory 4000 MB (current use 84 MB)
+internal_rotation = False
+
+******** SHCI flags ********
+executable             = /home/nsb37/Dice_github/Dice
+mpiprefix              = mpirun
+scratchDirectory       = /scratch/nsb37/158134/TMPDIR/76428
+integralFile           = ./FCIDUMP
+configFile             = ./input.dat
+outputFile             = ./output.dat
+maxIter                = 6
+sweep_iter             = [    0]
+sweep_epsilon          = [    0]
+nPTiter                = 0
+Stochastic             = True
+restart                = False
+fullrestart            = False
+num_thrds              = 1
+memory                 = None
+
+CASCI E = -108.973595738296  S^2 = 0.0000000
+Set conv_tol_grad to 0.000316228
+macro iter 1 (21 JK  4 micro), CASSCF E = -109.018804600318  dE = -0.045208862  S^2 = 0.0000000
+               |grad[o]|=0.107  |grad[c]|= None  |ddm|=0.0368
+macro iter 2 (21 JK  4 micro), CASSCF E = -109.047831991507  dE = -0.029027391  S^2 = 0.0000000
+               |grad[o]|=0.0749  |grad[c]|= None  |ddm|=0.0168
+macro iter 3 (19 JK  4 micro), CASSCF E = -109.057886519344  dE = -0.010054528  S^2 = 0.0000000
+               |grad[o]|=0.0418  |grad[c]|= None  |ddm|=0.014
+macro iter 4 (8 JK  3 micro), CASSCF E = -109.057896800228  dE = -1.0280884e-05  S^2 = 0.0000000
+               |grad[o]|=0.00182  |grad[c]|= None  |ddm|=0.00127
+macro iter 5 (1 JK  1 micro), CASSCF E = -109.057896800228  dE = 0  S^2 = 0.0000000
+               |grad[o]|=1.35e-05  |grad[c]|= None  |ddm|=    0
+1-step CASSCF converged in 5 macro (70 JK 16 micro) steps
+CASSCF canonicalization
+Density matrix diagonal elements [1.98533451 1.98728411 1.97077788 1.88904478 1.88904478 0.1184167
+ 0.1184167  0.0416806 ]
+CASSCF energy = -109.057896800228
+CASCI E = -109.057896800228  E(CI) = -29.6257836689138  S^2 = 0.0000000

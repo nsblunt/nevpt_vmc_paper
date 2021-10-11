@@ -1,0 +1,83 @@
+{
+    "print": {
+        "readSCNorms": "false"
+    },
+    "wavefunction": {
+        "name": "scpt",
+        "numAct": "8",
+        "numCore": "2",
+        "overlapCutoff": "1.0e-8",
+        "determinants": "dets"
+    },
+    "sampling": {
+        "stochasticIterNorms": "1000",
+        "nIterFindInitDets": "100",
+        "numSCSamples": "10000",
+        "stochasticIterEachSC": "100",
+        "fixedResTimeNEVPT_Ene": "false",
+        "epsilon": "1.0e-8",
+        "seed": "2274943",
+        "efficientNEVPT_2": "true",
+        "determCCVV": "true",
+        "SCEnergiesBurnIn": "50",
+        "SCNormsBurnIn": "50"
+    }
+}
+
+Reading integrals
+Finished reading integrals
+Starting heat bath integral construction
+Finished heat bath integral construction
+Reading active space determinants
+Finished reading determinants, hash table bucket count: 4096
+Integrals and wave function preparation finished in 0.625798 s
+
+Deterministic CCVV energy:  -0.0127918868832
+
+About to sample the norms of the strongly contracted states...
+
+About to allocate arrays for sampling...
+Total number of strongly contracted states to sample: 14197
+Allocation of sampling arrays now finished.
+
+About to call first instance of HamAndSCNorms...
+First instance of HamAndSCNorms complete.
+iter: 0  t: 0.672536
+iter: 1  t: 0.702239
+iter: 100  t: 3.6537
+iter: 200  t: 6.64182
+iter: 300  t: 9.62134
+iter: 400  t: 12.6098
+iter: 500  t: 15.5942
+iter: 600  t: 18.5793
+iter: 700  t: 21.5553
+iter: 800  t: 24.5353
+iter: 900  t: 27.5139
+iter: 1000  t: 36.0424
+Calculating AAVV norms...
+AAVV norms calculated. Time taken: 0.790545
+Calculating CAAV norms...
+CAAV norms calculated. Time taken: 0.180585
+Calculating CCAA norms...
+CCAA norms calculated. Time taken: 0.00174904
+
+Calculation of strongly contracted norms complete.
+Total time for norms calculation:  36.3911
+
+About to print norm data...
+Printing complete.
+
+Now sampling the NEVPT2 energy...
+Total cumulative squared norm (process 0): 1.25623
+
+MPI Barrier time: 4.19617e-05 seconds
+Energy error estimate: 0.000361600133047
+Bias correction error estimate: 4.30111116566e-07
+Sampling complete.
+
+Total time for energy sampling 230.449739933 seconds
+CAS energy: -109.0592579
+SC-NEVPT2(s) second-order energy: -0.2125455343
+Total SC-NEVPT(s) energy: -109.2718034
+SC-NEVPT2(s) second-order energy with CCVV:  -0.2253374212
+Total SC-NEVPT2(s) energy with CCVV:  -109.2845953

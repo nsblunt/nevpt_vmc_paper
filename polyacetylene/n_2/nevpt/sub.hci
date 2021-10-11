@@ -1,0 +1,45 @@
+#!/bin/bash
+#SBATCH -J nevpt
+#SBATCH -p LONG
+#SBATCH --time=1:00:00
+#SBATCH -C new
+#SBATCH -n32
+
+wd=$SLURM_SUBMIT_DIR
+
+srun -n $SLURM_NNODES --tasks-per-node=1 mkdir /scratch/nsb37/${SLURM_JOB_ID}
+srun -n $SLURM_NNODES --tasks-per-node=1 mkdir /scratch/nsb37/${SLURM_JOB_ID}/TMPDIR
+srun -n $SLURM_NNODES --tasks-per-node=1 cp vmc.json /scratch/nsb37/${SLURM_JOB_ID}
+srun -n $SLURM_NNODES --tasks-per-node=1 cp FCIDUMP /scratch/nsb37/${SLURM_JOB_ID}
+srun -n $SLURM_NNODES --tasks-per-node=1 cp moEne.txt /scratch/nsb37/${SLURM_JOB_ID}
+srun -n $SLURM_NNODES --tasks-per-node=1 cp dets /scratch/nsb37/${SLURM_JOB_ID}
+srun -n $SLURM_NNODES --tasks-per-node=1 cp spinRDM.0.0.txt /scratch/nsb37/${SLURM_JOB_ID}
+
+scratch=/scratch/nsb37/${SLURM_JOB_ID}
+cd $SLURM_SUBMIT_DIR
+
+ls
+
+echo "Starting job $SLURM_JOBID"
+echo
+
+module purge
+module load mkl/64/2017/0/4
+module load gcc/4.8.3
+module load anaconda/python2/5.3.0
+module load icc/64/2016/4/258
+module load mpi/openmpi/intel16/2.0.2
+export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/home/nsb37/local/boost_1_66_0_mpi_vmc/lib/
+
+cd $scratch
+
+export TMPDIR=/scratch/nsb37/${SLURM_JOB_ID}/TMPDIR
+
+mpirun /home/nsb37/VMC/bin/VMC vmc.json > nevpt.out
+
+echo 
+
+srun -n $SLURM_NNODES --tasks-per-node=1 cp nevpt.out $SLURM_SUBMIT_DIR
+srun -n $SLURM_NNODES --tasks-per-node=1 cp pt* $SLURM_SUBMIT_DIR
+
+qstat -f $SLURM_JOBID

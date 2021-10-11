@@ -1,0 +1,118 @@
+
+     ____  _
+    |  _ \(_) ___ ___
+    | | | | |/ __/ _ \
+    | |_| | | (_|  __/
+    |____/|_|\___\___|   v1.0
+
+
+**************************************************************
+Dice  Copyright (C) 2017  Sandeep Sharma
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+See the GNU General Public License for more details.
+
+Author:       Sandeep Sharma
+Contributors: James E Smith, Adam A Holmes, Bastien Mussard
+For detailed documentation on Dice please visit
+https://sanshar.github.io/Dice/
+and our group page for up to date information on other projects
+http://www.colorado.edu/lab/sharmagroup/
+**************************************************************
+
+User:             root
+Date:             Mon May 18 20:38:22 2020
+PID:              18097
+
+Path:             /home/nsb37/Dice_github/Dice
+Commit:           cc2c6cdedce4dfbd7b4d542d5c843e49374e9f41
+Branch:           master
+Compilation Date: Mar 17 2020 19:09:36
+
+
+**************************************************************
+INPUT FILE
+**************************************************************
+#system
+nocc 20
+0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 
+orbitals ./FCIDUMP
+nroots 1
+
+#variational
+schedule
+0	0.001
+2	0.0001
+4	5e-05
+end
+davidsonTol 5e-05
+dE 1e-08
+maxiter 30
+printalldeterminants
+
+#pt
+nPTiter 0
+epsilon2 1e-07
+#epsilon2Large 2e-5
+targetError 1e-5
+sampleN 200
+
+#misc
+noio
+DoRDM
+DoSpinRDM
+
+
+
+**************************************************************
+SELECTING REFERENCE DETERMINANT(S)
+**************************************************************
+2 2 2 2 2   2 2 2 2 2   0 0 0 0 0   0 0 0 0 0    Given HF Energy:     -769.7256152740
+2 2 2 2 2   2 2 2 0 2   2 0 0 0 0   0 0 0 0 0    Est. Det. Energy:    -769.2248949642
+
+
+**************************************************************
+VARIATIONAL STEP  
+**************************************************************
+Iter Root       Eps1   #Var. Det.               Energy   #Davidson     Time(s)
+   0    0    1.00e-03        4455      -769.9452723042         10        0.65
+   1    0    1.00e-03        4585      -769.9458174377          7        0.76
+   2    0    1.00e-04      393000      -769.9838326240         16        7.29
+   3    0    1.00e-04      485386      -769.9871278060         11       23.83
+   4    0    5.00e-05     1281862      -770.0003811652         15       59.95
+   5    0    5.00e-05     1364301      -770.0011404207         11      175.13
+   6    0    5.00e-05     1371444      -770.0012015950          7      299.00
+   7    0    5.00e-05     1372071      -770.0012071934          4      429.28
+   8    0    5.00e-05     1372129      -770.0012077631          4      555.17
+   9    0    5.00e-05     1372161      -770.0012078891          3      681.76
+  10    0    5.00e-05     1372173      -770.0012079535          3      809.94
+  11    0    5.00e-05     1372175      -770.0012079553          2      973.79
+Performing final tight davidson with tol: 5e-05
+Exiting variational iterations
+
+Calculating 2-RDM
+E(one-body) from 2RDM:     -49.9566856132
+E(two-body) from 2RDM:      20.7735118907
+E from 2RDM:              -770.0012079553
+
+Variational calculation result
+Root             Energy     Time(s)
+   0     -770.0012079553     1003.58
+
+Printing most important determinants
+ Det     weight  Determinant string
+State :   0
+   0      -0.8034668169  2 2 2 2 2   2 2 2 2 2   0 0 0 0 0   0 0 0 0 0   
+   1       0.0935535552  2 2 2 2 2   2 2 2 2 0   2 0 0 0 0   0 0 0 0 0   
+   2       0.0650330546  2 2 2 2 2   2 2 2 0 2   0 2 0 0 0   0 0 0 0 0   
+   3       0.0602219260  2 2 2 2 2   2 2 2 a b   b a 0 0 0   0 0 0 0 0   
+   4       0.0602219260  2 2 2 2 2   2 2 2 b a   a b 0 0 0   0 0 0 0 0   
+   5       0.0504220123  2 2 2 2 2   2 2 a 2 b   b 0 a 0 0   0 0 0 0 0   
+
+**************************************************************
+Returning without error
+**************************************************************
+
+
